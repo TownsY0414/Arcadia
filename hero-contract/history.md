@@ -136,3 +136,143 @@ Ran 2 test suites in 396.87ms (33.15ms CPU time): 6 tests passed, 0 failed, 0 sk
 Please create a contract in this git repo.
 I initialed hero-contract in this repo by foundry forge.
 Please follow  history.md to create the contract and test file for it
+
+## How to Use
+
+### Interacting with Contract ABI
+
+1. Creating a Hero
+```javascript
+// Function signature: createHero(string)
+const createHeroABI = {
+    "inputs": [{"type": "string", "name": "_heroName"}],
+    "name": "createHero",
+    "type": "function"
+};
+
+// Example calldata construction
+const heroName = "MyHero";
+const createCalldata = web3.eth.abi.encodeFunctionCall(createHeroABI, [heroName]);
+// Result: 0x4c988c16000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000064d794865726f000000000000000000000000000000000000000000000000000000
+```
+
+2. Saving Hero Data
+```javascript
+// Function signature: saveHero((string,(uint256,uint256,uint256,uint256),uint256,(uint256,uint256,uint256,uint256)))
+const saveHeroABI = {
+    "inputs": [{
+        "components": [
+            {"name": "heroName", "type": "string"},
+            {"components": [
+                {"name": "spring", "type": "uint256"},
+                {"name": "summer", "type": "uint256"},
+                {"name": "autumn", "type": "uint256"},
+                {"name": "winter", "type": "uint256"}
+            ], "name": "attributes", "type": "tuple"},
+            {"name": "heroEnergy", "type": "uint256"},
+            {"components": [
+                {"name": "sharpen", "type": "uint256"},
+                {"name": "heal", "type": "uint256"},
+                {"name": "fireball", "type": "uint256"},
+                {"name": "thunder", "type": "uint256"}
+            ], "name": "skills", "type": "tuple"}
+        ],
+        "name": "_heroData",
+        "type": "tuple"
+    }],
+    "name": "saveHero",
+    "type": "function"
+};
+
+// Example data
+const heroData = {
+    heroName: "MyHero",
+    attributes: {
+        spring: 1,
+        summer: 1,
+        autumn: 1,
+        winter: 1
+    },
+    heroEnergy: 3,
+    skills: {
+        sharpen: 1,
+        heal: 1,
+        fireball: 1,
+        thunder: 1
+    }
+};
+
+// Encode calldata
+const saveCalldata = web3.eth.abi.encodeFunctionCall(saveHeroABI, [heroData]);
+```
+
+3. Loading Hero Data
+```javascript
+// Function signature: getHero(address)
+const getHeroABI = {
+    "inputs": [{"type": "address", "name": "_owner"}],
+    "name": "getHero",
+    "outputs": [{
+        "components": [
+            {"name": "heroName", "type": "string"},
+            {"components": [
+                {"name": "spring", "type": "uint256"},
+                {"name": "summer", "type": "uint256"},
+                {"name": "autumn", "type": "uint256"},
+                {"name": "winter", "type": "uint256"}
+            ], "name": "attributes", "type": "tuple"},
+            {"name": "heroEnergy", "type": "uint256"},
+            {"components": [
+                {"name": "sharpen", "type": "uint256"},
+                {"name": "heal", "type": "uint256"},
+                {"name": "fireball", "type": "uint256"},
+                {"name": "thunder", "type": "uint256"}
+            ], "name": "skills", "type": "tuple"}
+        ],
+        "type": "tuple"
+    }],
+    "type": "function"
+};
+
+// Example calldata construction
+const address = "0x1234..."; // The address to query
+const getCalldata = web3.eth.abi.encodeFunctionCall(getHeroABI, [address]);
+
+// Decoding the response
+const decodedData = web3.eth.abi.decodeParameters([{
+    components: [
+        { name: 'heroName', type: 'string' },
+        { 
+            name: 'attributes', 
+            type: 'tuple',
+            components: [
+                { name: 'spring', type: 'uint256' },
+                { name: 'summer', type: 'uint256' },
+                { name: 'autumn', type: 'uint256' },
+                { name: 'winter', type: 'uint256' }
+            ]
+        },
+        { name: 'heroEnergy', type: 'uint256' },
+        {
+            name: 'skills',
+            type: 'tuple',
+            components: [
+                { name: 'sharpen', type: 'uint256' },
+                { name: 'heal', type: 'uint256' },
+                { name: 'fireball', type: 'uint256' },
+                { name: 'thunder', type: 'uint256' }
+            ]
+        }
+    ],
+    type: 'tuple'
+}], responseData);
+```
+
+### Important Notes:
+1. All numeric values (uint256) should be passed as strings to avoid precision issues
+2. The calldata can be used in:
+   - Web3.js: `web3.eth.sendTransaction({to: contractAddress, data: calldata})`
+   - Ethers.js: `contract.interface.encodeFunctionData()`
+   - Direct blockchain transactions: Use the calldata in the `data` field
+3. For view functions (like getHero), you can use eth_call instead of sending a transaction
+4. Always verify the contract address before sending transactions

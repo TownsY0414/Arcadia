@@ -114,4 +114,58 @@ contract HeroTest is Test {
 
         vm.stopPrank();
     }
+
+    function testCalldataEncoding() public {
+        vm.startPrank(player);
+
+        // Test createHero calldata
+        bytes memory createCalldata = abi.encodeWithSignature(
+            "createHero(string)", 
+            "TestHero"
+        );
+        (bool success,) = address(hero).call(createCalldata);
+        assertTrue(success);
+
+        // Test saveHero calldata
+        Hero.HeroData memory heroData = Hero.HeroData({
+            heroName: "UpdatedHero",
+            attributes: Hero.HeroAttributes({
+                spring: 2,
+                summer: 2,
+                autumn: 2,
+                winter: 2
+            }),
+            heroEnergy: 5,
+            skills: Hero.HeroSkills({
+                sharpen: 2,
+                heal: 2,
+                fireball: 2,
+                thunder: 2
+            })
+        });
+
+        bytes memory saveCalldata = abi.encodeWithSignature(
+            "saveHero((string,(uint256,uint256,uint256,uint256),uint256,(uint256,uint256,uint256,uint256)))",
+            heroData
+        );
+        (success,) = address(hero).call(saveCalldata);
+        assertTrue(success);
+
+        // Test getHero calldata and return data
+        bytes memory getCalldata = abi.encodeWithSignature(
+            "getHero(address)",
+            player
+        );
+        (success, bytes memory returnData) = address(hero).call(getCalldata);
+        assertTrue(success);
+
+        // Decode return data
+        Hero.HeroData memory retrievedHero = abi.decode(returnData, (Hero.HeroData));
+        assertEq(retrievedHero.heroName, "UpdatedHero");
+        assertEq(retrievedHero.heroEnergy, 5);
+        assertEq(retrievedHero.attributes.spring, 2);
+        assertEq(retrievedHero.skills.sharpen, 2);
+
+        vm.stopPrank();
+    }
 } 
