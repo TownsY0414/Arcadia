@@ -18,7 +18,7 @@
   - Saving(save the hero attributes to the contract).
   - Loading(load the hero attributes from the contract).
 
-## Frontend
+## Contract API
 
 - We will use API, ABIs to interact with the hero contract.
 - Act as:
@@ -28,10 +28,11 @@
       - Data structure send to backend:
         - Account address
         - heroName
-        - heroAttributes:4
-        - heroEnergy: default 3
-        <!-- - heroSkills: -->
-        <!-- - Signature(generate by this AirAccount with BLS(fingerprint) key). -->
+      - heroAttributes(random initiate)
+        - {"Spring"：1，"Summer"：1，"Autumn"：1，"Winter"：1}
+      - heroEnergy(default 3)
+      - heroSkills
+        - {"sharpen":1，"heal":1，"fireball":1，"thunder":1}
       - Response:
         - Status(success or failed).
         <!-- - Last Hash of the hero attributes(generate by backend with sha256 and salt). -->
@@ -40,30 +41,71 @@
     - Data structure:
       - Account address
       - heroName
-      - heroAttributes(random 4)
+      - heroAttributes(random initiate)
+        - {"Spring"：1，"Summer"：1，"Autumn"：1，"Winter"：1}
       - heroEnergy(default 3)
       - heroSkills
-        - ???
-      <!-- - Last Hash of the hero attributes(generate by backend with sha256 and salt, get from initial or saving response). -->
-      <!-- - Signature(generate by this AirAccount with BLS(fingerprint) key). -->
+        - {"sharpen":1，"heal":1，"fireball":1，"thunder":1}
     - Response:
       - Status(success or failed).
-      <!-- - Hash of the hero attributes(generate by backend with sha256 and salt, get from initial or saving response). -->
   - Loading(load the hero attributes from the contract).
     - Invoke API to get the hero attributes from the contract.
     - Data structure:
       - Account address
       - heroName
-      - heroAttributes
-      - heroEnergy
+      - heroAttributes(random initiate)
+        - {"Spring"：1，"Summer"：1，"Autumn"：1，"Winter"：1}
+      - heroEnergy(default 3)
       - heroSkills
-      <!-- - Last Hash of the hero attributes(generate by backend with sha256 and salt) -->
+        - {"sharpen":1，"heal":1，"fireball":1，"thunder":1}
 
 ## Version 0.1
 
 - Initial the hero.
 - Save the hero.
 - Load the hero.
+
+## Version 0.1.1 Changes
+
+### Contract Structure Updates
+
+- Simplified hero data structure by removing unnecessary fields (heroId, heroLevel, heroExperience)
+- Removed hash verification and signature requirements for simpler implementation
+- Added default values for new heroes:
+  - All attributes (Spring, Summer, Autumn, Winter) start at 1
+  - heroEnergy starts at 3
+  - All skills (sharpen, heal, fireball, thunder) start at 1
+
+### New Features
+
+- Added `hasHeroCreated` function to check if an address has a hero
+- Simplified hero creation to only require a hero name
+- Structured hero attributes into seasonal powers (Spring, Summer, Autumn, Winter)
+- Implemented specific skill set structure (sharpen, heal, fireball, thunder)
+
+### Contract Functions
+
+1. `createHero(string calldata _heroName)`
+   - Creates new hero with default attributes and skills
+   - Emits HeroCreated event
+
+2. `saveHero(HeroData calldata _heroData)`
+   - Updates existing hero data
+   - Emits HeroUpdated event
+
+3. `getHero(address _owner)`
+   - Returns hero data for given address
+
+4. `hasHeroCreated(address _owner)`
+   - Returns boolean indicating if address has a hero
+
+### Test Coverage
+
+- Added comprehensive tests for:
+  - Hero creation with default values
+  - Duplicate hero prevention
+  - Hero data updates
+  - Error cases for non-existent heroes
 
 Please create a contract in this git repo.
 I initialed hero-contract in this repo by foundry forge.

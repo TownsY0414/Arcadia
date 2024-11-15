@@ -7,10 +7,9 @@ import {Hero} from "../src/Hero.sol";
 contract HeroTest is Test {
     Hero public hero;
     address public player;
-    bytes32 public constant SALT = bytes32(uint256(1));
 
     function setUp() public {
-        hero = new Hero(SALT);
+        hero = new Hero();
         player = makeAddr("player");
         vm.deal(player, 100 ether);
     }
@@ -18,38 +17,26 @@ contract HeroTest is Test {
     function testCreateHero() public {
         vm.startPrank(player);
 
-        string[] memory skills = new string[](2);
-        skills[0] = "Slash";
-        skills[1] = "Block";
+        // Create hero with just a name
+        hero.createHero("TestHero");
 
-        Hero.HeroAttributes memory attrs = Hero.HeroAttributes({
-            strength: 10,
-            dexterity: 10,
-            constitution: 10,
-            intelligence: 10,
-            wisdom: 10,
-            charisma: 10
-        });
-
-        Hero.HeroData memory heroData = Hero.HeroData({
-            heroId: 1,
-            heroName: "TestHero",
-            attributes: attrs,
-            heroLevel: 1,
-            heroExperience: 0,
-            heroSkills: skills,
-            lastHash: bytes32(0)
-        });
-
-        // TODO: Generate proper signature
-        bytes memory signature = bytes("dummy_signature");
-
-        hero.createHero(heroData, signature);
-
+        // Verify hero was created with default values
         Hero.HeroData memory savedHero = hero.getHero(player);
+        
         assertEq(savedHero.heroName, "TestHero");
-        assertEq(savedHero.heroLevel, 1);
-        assertEq(savedHero.attributes.strength, 10);
+        assertEq(savedHero.heroEnergy, 3);
+        
+        // Check default attributes
+        assertEq(savedHero.attributes.spring, 1);
+        assertEq(savedHero.attributes.summer, 1);
+        assertEq(savedHero.attributes.autumn, 1);
+        assertEq(savedHero.attributes.winter, 1);
+        
+        // Check default skills
+        assertEq(savedHero.skills.sharpen, 1);
+        assertEq(savedHero.skills.heal, 1);
+        assertEq(savedHero.skills.fireball, 1);
+        assertEq(savedHero.skills.thunder, 1);
 
         vm.stopPrank();
     }
@@ -57,34 +44,73 @@ contract HeroTest is Test {
     function testCannotCreateDuplicateHero() public {
         vm.startPrank(player);
 
-        string[] memory skills = new string[](1);
-        skills[0] = "Slash";
-
-        Hero.HeroAttributes memory attrs = Hero.HeroAttributes({
-            strength: 10,
-            dexterity: 10,
-            constitution: 10,
-            intelligence: 10,
-            wisdom: 10,
-            charisma: 10
-        });
-
-        Hero.HeroData memory heroData = Hero.HeroData({
-            heroId: 1,
-            heroName: "TestHero",
-            attributes: attrs,
-            heroLevel: 1,
-            heroExperience: 0,
-            heroSkills: skills,
-            lastHash: bytes32(0)
-        });
-
-        bytes memory signature = bytes("dummy_signature");
-
-        hero.createHero(heroData, signature);
+        hero.createHero("TestHero");
         
         vm.expectRevert(Hero.HeroAlreadyExists.selector);
-        hero.createHero(heroData, signature);
+        hero.createHero("AnotherHero");
+
+        vm.stopPrank();
+    }
+
+    function testSaveHero() public {
+        vm.startPrank(player);
+
+        // First create a hero
+        hero.createHero("TestHero");
+
+        // Create updated hero data
+        Hero.HeroData memory updatedHero = Hero.HeroData({
+            heroName: "UpdatedHero",
+            attributes: Hero.HeroAttributes({
+                spring: 2,
+                summer: 2,
+                autumn: 2,
+                winter: 2
+            }),
+            heroEnergy: 5,
+            skills: Hero.HeroSkills({
+                sharpen: 2,
+                heal: 2,
+                fireball: 2,
+                thunder: 2
+            })
+        });
+
+        // Save updated hero data
+        hero.saveHero(updatedHero);
+
+        // Verify updates
+        Hero.HeroData memory savedHero = hero.getHero(player);
+        assertEq(savedHero.heroName, "UpdatedHero");
+        assertEq(savedHero.heroEnergy, 5);
+        assertEq(savedHero.attributes.spring, 2);
+        assertEq(savedHero.skills.sharpen, 2);
+
+        vm.stopPrank();
+    }
+
+    function testCannotSaveNonexistentHero() public {
+        vm.startPrank(player);
+
+        Hero.HeroData memory heroData = Hero.HeroData({
+            heroName: "TestHero",
+            attributes: Hero.HeroAttributes({
+                spring: 1,
+                summer: 1,
+                autumn: 1,
+                winter: 1
+            }),
+            heroEnergy: 3,
+            skills: Hero.HeroSkills({
+                sharpen: 1,
+                heal: 1,
+                fireball: 1,
+                thunder: 1
+            })
+        });
+
+        vm.expectRevert(Hero.HeroDoesNotExist.selector);
+        hero.saveHero(heroData);
 
         vm.stopPrank();
     }
