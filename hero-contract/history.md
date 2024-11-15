@@ -107,6 +107,32 @@
   - Hero data updates
   - Error cases for non-existent heroes
 
+Test result:
+```
+hero-contract|main ⇒ forge build
+[⠊] Compiling...
+[⠔] Compiling 29 files with Solc 0.8.23
+[⠑] Solc 0.8.23 finished in 3.43s
+Compiler run successful!
+hero-contract|main ⇒ forge test -vvv
+[⠒] Compiling...
+No files changed, compilation skipped
+
+Ran 4 tests for test/Hero.t.sol:HeroTest
+[PASS] testCannotCreateDuplicateHero() (gas: 259289)
+[PASS] testCannotSaveNonexistentHero() (gas: 14395)
+[PASS] testCreateHero() (gas: 267986)
+[PASS] testSaveHero() (gas: 271374)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 11.18ms (1.84ms CPU time)
+
+Ran 2 tests for test/Counter.t.sol:CounterTest
+[PASS] testFuzz_SetNumber(uint256) (runs: 256, μ: 31210, ~: 31288)
+[PASS] test_Increment() (gas: 31303)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 21.96ms (15.21ms CPU time)
+
+Ran 2 test suites in 396.87ms (33.15ms CPU time): 6 tests passed, 0 failed, 0 skipped (6 total tests)
+```
+
 Please create a contract in this git repo.
 I initialed hero-contract in this repo by foundry forge.
 Please follow  history.md to create the contract and test file for it
