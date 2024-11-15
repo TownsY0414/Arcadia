@@ -151,16 +151,8 @@ contract HeroTest is Test {
         (success,) = address(hero).call(saveCalldata);
         assertTrue(success);
 
-        // Test getHero calldata and return data
-        bytes memory getCalldata = abi.encodeWithSignature(
-            "getHero(address)",
-            player
-        );
-        (success, bytes memory returnData) = address(hero).call(getCalldata);
-        assertTrue(success);
-
-        // Decode return data
-        Hero.HeroData memory retrievedHero = abi.decode(returnData, (Hero.HeroData));
+        // Test getHero directly instead of using low-level calls
+        Hero.HeroData memory retrievedHero = hero.getHero(player);
         assertEq(retrievedHero.heroName, "UpdatedHero");
         assertEq(retrievedHero.heroEnergy, 5);
         assertEq(retrievedHero.attributes.spring, 2);
