@@ -142,6 +142,7 @@ Please follow  history.md to create the contract and test file for it
 ### Interacting with Contract ABI
 
 1. Creating a Hero
+
 ```javascript
 // Function signature: createHero(string)
 const createHeroABI = {
@@ -156,7 +157,8 @@ const createCalldata = web3.eth.abi.encodeFunctionCall(createHeroABI, [heroName]
 // Result: 0x4c988c16000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000064d794865726f000000000000000000000000000000000000000000000000000000
 ```
 
-2. Saving Hero Data
+1. Saving Hero Data
+
 ```javascript
 // Function signature: saveHero((string,(uint256,uint256,uint256,uint256),uint256,(uint256,uint256,uint256,uint256)))
 const saveHeroABI = {
@@ -206,7 +208,8 @@ const heroData = {
 const saveCalldata = web3.eth.abi.encodeFunctionCall(saveHeroABI, [heroData]);
 ```
 
-3. Loading Hero Data
+1. Loading Hero Data
+
 ```javascript
 // Function signature: getHero(address)
 const getHeroABI = {
@@ -268,7 +271,8 @@ const decodedData = web3.eth.abi.decodeParameters([{
 }], responseData);
 ```
 
-### Important Notes:
+### Important Notes
+
 1. All numeric values (uint256) should be passed as strings to avoid precision issues
 2. The calldata can be used in:
    - Web3.js: `web3.eth.sendTransaction({to: contractAddress, data: calldata})`
@@ -276,3 +280,42 @@ const decodedData = web3.eth.abi.decodeParameters([{
    - Direct blockchain transactions: Use the calldata in the `data` field
 3. For view functions (like getHero), you can use eth_call instead of sending a transaction
 4. Always verify the contract address before sending transactions
+
+### Deploy
+
+Deployer: 0xe24b6f321B0140716a2b671ed0D983bb64E7DaFA
+Deployed to: 0xA7704A27E7c26021e61BB00fd7D21DdAaE822e58
+Transaction hash: 0xaeff7d73302e342181e5c00da0b10b6914bde8bb1af2b1e6208dd67fc9ab0c1c
+Starting contract verification...
+Waiting for etherscan to detect contract deployment...
+Start verifying contract `0xA7704A27E7c26021e61BB00fd7D21DdAaE822e58` deployed on sepolia
+
+Submitting verification for [src/Hero.sol:Hero] 0xA7704A27E7c26021e61BB00fd7D21DdAaE822e58.
+Submitted contract for verification:
+	Response: `OK`
+	GUID: `ncejxxahbazhtw7sm9klxccjcggnrngt8gdjhcvivdsgpwlsnz`
+	URL: https://sepolia.etherscan.io/address/0xa7704a27e7c26021e61bb00fd7d21ddaae822e58
+Contract verification status:
+Response: `NOTOK`
+Details: `Pending in queue`
+Contract verification status:
+Response: `OK`
+Details: `Pass - Verified`
+Contract successfully verified
+
+# Version 0.1.2
+
+- we will add two new features:
+  1. add verification to the client side communication to avoid the man-in-the-middle attack.
+     1. It is a simple session-key, signed by user's fingerprint.
+     2. The session-key will be generated in the client side and stored in the local-storage of the client.
+     3. The session-key will be sent within calldata to the backend server and verified by the backend validators.
+     4. The session-key will be updated in the client side when it is expired.
+     5. Only used in the loading and saving method to skip the signature verification of the client side for 1 hour.
+  2. add a NFT address verification to the loading and saving method.
+     1. Account should have a NFT to interact with the hero contract.
+     2. This NFT published by the Community NFT feature by specific NFT contract.
+     3. The NFT contract address will be added in the hero contract.
+     4. The NFT owner address will be verified in the loading and saving method.
+     5. The NFT is a Soul Bound NFT, it means it cannot be transferred or sold.
+

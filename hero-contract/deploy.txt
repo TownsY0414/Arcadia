@@ -1,0 +1,23 @@
+forge script Hero  --rpc-url $SEPOLIA_RPC_URL --private-key $PRIVATE_KEY --broadcast
+
+forge script script/DeployMyToken.s.sol --rpc-url ${RPC_URL} --broadcast --verify -vvvv --private-key ${YOUR_PRIVATE_KEY}
+
+forge script script/DeployMyToken.s.sol: 这是 Forge 工具的命令，用于执行 Solidity 合约的部署脚本。
+--rpc-url ${RPC_URL}: 指定你要连接的以太坊网络的 RPC URL。
+--broadcast: 在部署完成后，自动广播交易以提交到区块链。
+--verify: 部署后验证合约是否成功，包括检查合约地址是否有效。
+-vvvv: 输出详细的调试信息，有助于查看部署过程中的详细步骤和可能的错误。
+--private-key ${YOUR_PRIVATE_KEY}: 指定用于签署交易的私钥。确保替换 ${YOUR_PRIVATE_KEY} 为你的实际私钥值。
+
+
+
+forge create --rpc-url <your_rpc_url> \
+    --constructor-args "ForgeUSD" "FUSD" 18 1000000000000000000000 \
+    --private-key <your_private_key> \
+    --etherscan-api-key <your_etherscan_api_key> \
+    --verify \
+    src/MyToken.sol:MyToken
+
+
+
+
