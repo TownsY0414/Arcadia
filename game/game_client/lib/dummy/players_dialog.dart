@@ -36,6 +36,7 @@ class _PlayersDialogState extends State<PlayersDialog> {
            }, icon: Icon(Icons.clear)))
          ]),
          Expanded(child: ListView(children: [
+           if(widget.remotePlayers.isEmpty)Text("周围暂时无玩家"),
            ...widget.remotePlayers.map<ListTile>((player) {
              final path = player.skinPath;
              return ListTile(
