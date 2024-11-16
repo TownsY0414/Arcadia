@@ -36,9 +36,7 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
 
   CharacterState get characterState => _state;
 
-  onCharacterStateChanged(CharacterState state){
-
-  }
+  onCharacterStateChanged(CharacterState state){}
 
   @override
   onAttrPointsChanged(double attr) {
@@ -57,7 +55,7 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         addLuckValue(byAttr: true);
         break;
     }
-    _state = _state.copyWith(attriPoints: attr);
+    _state = _state.copyWith(attriPoints: attr, skills: ownSkills);
     onCharacterStateChanged(_state);
   }
 
@@ -77,7 +75,7 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
-    _state = _state.copyWith(hp: hp);
+    _state = _state.copyWith(hp: hp, skills: ownSkills);
     onCharacterStateChanged(_state);
   }
 
@@ -93,7 +91,7 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
-    _state = _state.copyWith(attack: attackPower);
+    _state = _state.copyWith(attack: attackPower, skills: ownSkills);
     onCharacterStateChanged(_state);
   }
 
@@ -109,7 +107,7 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
-    _state = _state.copyWith(defence: defencePower);
+    _state = _state.copyWith(defence: defencePower, skills: ownSkills);
     onCharacterStateChanged(_state);
   }
 
@@ -133,7 +131,7 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
-    _state = _state.copyWith(luckVal: luckValue);
+    _state = _state.copyWith(luckVal: luckValue, skills: ownSkills);
     onCharacterStateChanged(_state);
   }
 
@@ -155,13 +153,13 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
 
   @override
   onTriggerProbabilityChanged(double triggerProbability) {
-    _state.copyWith(triggerProbability: triggerProbability);
+    _state.copyWith(triggerProbability: triggerProbability, skills: ownSkills);
     onCharacterStateChanged(_state);
   }
 
   @override
   onEvasionRateChanged(double evasionRate) {
-    _state = _state.copyWith(evasionRate: evasionRate);
+    _state = _state.copyWith(evasionRate: evasionRate, skills: ownSkills);
     onCharacterStateChanged(_state);
   }
 
