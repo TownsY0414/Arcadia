@@ -22,4 +22,11 @@ class UpdatePlayerPositionEvent extends MyPlayerEvent {
   });
 }
 
+class UpdateMyCharacterStateEvent extends MyPlayerEvent {
+
+  final CharacterState state;
+
+  UpdateMyCharacterStateEvent({required this.state});
+}
+
 class DisposeEvent extends MyPlayerEvent {}

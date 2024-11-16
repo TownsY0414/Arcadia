@@ -104,7 +104,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
               ..._getComponents(widget.event, context),
               SpikesComponent(),
               //对话
-              Wizard(Vector2(100, 200), state: widget.event.state),
+              //Wizard(Vector2(100, 200), state: widget.event.state),
               //跟随npc
               Critter(Vector2(150, 200)),
               Chest(Vector2(150, 60)),
@@ -123,7 +123,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
             ),
             overlayBuilderMap: {
               'leaderboardButton': (context, game) {
-                return _buildLeaderboardButton(context, game);
+                return _buildLeaderboardButton(context, game, context.read<MyPlayerBloc>());
               }, // 新增
             },
             initialActiveOverlays: const [
@@ -137,11 +137,11 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   }
 
   // 新增方法
-  Widget _buildLeaderboardButton(BuildContext context, BonfireGameInterface game) {
+  Widget _buildLeaderboardButton(BuildContext context, BonfireGameInterface game, MyPlayerBloc b) {
     return Positioned(
       top: kToolbarHeight,
       right: 10,
-      child: _isLeaderboardExpanded ? _buildLeaderboardPanel() : IconButton(
+      child: _isLeaderboardExpanded ? _buildLeaderboardPanel(b) : IconButton(
         onPressed: () {
           if(mounted) {
             setState(() {
@@ -157,7 +157,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLeaderboardPanel() {
+  Widget _buildLeaderboardPanel(MyPlayerBloc bloc) {
     return Material(type: MaterialType.card, child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         width: _isLeaderboardExpanded ? 200 : 0,
@@ -172,7 +172,7 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
               const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('排行榜', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: Text('当前状态', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 )
               ]),
               IconButton(onPressed: () {
@@ -183,13 +183,11 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
                 }
               }, icon: const Icon(Icons.clear))
             ]),
-            Expanded(child: SingleChildScrollView(child: Column(children: [
-              for (int i = 1; i <= 10; i++)
-                ListTile(
-                  title: Text('玩家 $i'),
-                  trailing: Text('${1000 - i * 50}分'),
-                ),
-            ])))
+            Expanded(child: SingleChildScrollView(child: BlocBuilder<MyPlayerBloc, MyPlayerState>(bloc: bloc, builder: (_, state){
+              return Column(children: [
+                Text("${state.characterState.toString()}")
+              ]);
+            })))
           ],
         )
     ));

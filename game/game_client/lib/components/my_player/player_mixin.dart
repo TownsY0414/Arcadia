@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:bonfire/bonfire.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/animation.dart';
 import '../../dummy/player_battle_list.dart';
 import '../../event/battle_event.dart';
@@ -13,6 +14,7 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
 
   List<Skill> ownSkills = [];
   late BattleLogBloc battleLogBloc;
+  late CharacterState _state;
 
   // size: ,
   // animation: PlayersSpriteSheet.simpleAnimation(skin.path),
@@ -28,7 +30,15 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
     Direction initDirection = Direction.right,
     double? speed,
     double life = 100,
-  }) : super(position: position, size: size, animation: animation, initDirection: initDirection, speed: speed, life: life);
+  }) : super(position: position, size: size, animation: animation, initDirection: initDirection, speed: speed, life: life){
+    _state = CharacterState(hp: hp, attack: attackPower, defence: defencePower, evasionRate: evasionRate, attriPoints: attrPoints, luckVal: luckVal, triggerProbability: triggerProbability);
+  }
+
+  CharacterState get characterState => _state;
+
+  onCharacterStateChanged(CharacterState state){
+
+  }
 
   @override
   onAttrPointsChanged(double attr) {
@@ -47,6 +57,8 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         addLuckValue(byAttr: true);
         break;
     }
+    _state = _state.copyWith(attriPoints: attr);
+    onCharacterStateChanged(_state);
   }
 
   onLogCall(log) {
@@ -65,6 +77,8 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
+    _state = _state.copyWith(hp: hp);
+    onCharacterStateChanged(_state);
   }
 
   @override
@@ -79,6 +93,8 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
+    _state = _state.copyWith(attack: attackPower);
+    onCharacterStateChanged(_state);
   }
 
   @override
@@ -93,6 +109,8 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
+    _state = _state.copyWith(defence: defencePower);
+    onCharacterStateChanged(_state);
   }
 
   @override
@@ -115,6 +133,8 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
         ownSkills.add(skill);
       }
     }
+    _state = _state.copyWith(luckVal: luckValue);
+    onCharacterStateChanged(_state);
   }
 
   onSkillAdd(Skill skill) {
@@ -135,12 +155,14 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
 
   @override
   onTriggerProbabilityChanged(double triggerProbability) {
-
+    _state.copyWith(triggerProbability: triggerProbability);
+    onCharacterStateChanged(_state);
   }
 
   @override
   onEvasionRateChanged(double evasionRate) {
-
+    _state = _state.copyWith(evasionRate: evasionRate);
+    onCharacterStateChanged(_state);
   }
 
   void onReflect(double damage){
@@ -251,5 +273,49 @@ class PlayerCharacter extends SimplePlayer with Hp, AttackPower, DefencePower, E
     var DEF = defence ?? defencePower;
     var y = ATK * (1-DEF/(DEF+k));
     return y;
+  }
+}
+
+class CharacterState extends Equatable{
+  final double? hp;
+  final double? attack;
+  final double? defence;
+  final double? evasionRate;
+  final double? attriPoints;
+  final double? luckVal;
+  final double? triggerProbability;
+  final List<Skill>? skills;
+
+  CharacterState({this.hp, this.attack, this.defence, this.evasionRate, this.attriPoints, this.luckVal, this.triggerProbability, this.skills});
+
+  CharacterState copyWith({
+    double? hp,
+    double? attack,
+    double? defence,
+    double? evasionRate,
+    double? attriPoints,
+    double? luckVal,
+    double? triggerProbability,
+    List<Skill>? skills
+  }) {
+    return CharacterState(
+        hp: hp ?? this.hp,
+        attack: attack ?? this.attack,
+        defence: defence ?? this.defence,
+        evasionRate: evasionRate ?? this.evasionRate,
+        attriPoints: attriPoints ?? this.attriPoints,
+        luckVal: luckVal ?? this.luckVal,
+        triggerProbability: triggerProbability ?? this.triggerProbability,
+        skills: skills ?? this.skills
+    );
+  }
+
+  @override
+  List<Object?> get props => [hp, attack, defence, evasionRate, attriPoints, luckVal, triggerProbability, skills];
+
+  @override
+  String toString() {
+    return 'CharacterState{hp: $hp, attack: $attack, defence: $defence, evasionRate: $evasionRate, '
+        'attriPoints: $attriPoints, luckVal: $luckVal, triggerProbability: $triggerProbability, skills: ${skills?.map((e)=>e.toString())?.join("\n")}';
   }
 }

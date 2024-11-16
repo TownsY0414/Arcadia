@@ -61,6 +61,11 @@ class MyPlayer extends PlayerCharacter
     super.update(dt);
   }
 
+  @override
+  onCharacterStateChanged(CharacterState state) {
+     bloc.add(UpdateMyCharacterStateEvent(state: state));
+  }
+
   void _sendMoveState() {
     // send move state if not stoped
     if (_joystickDirectional == JoystickMoveDirectional.IDLE) {

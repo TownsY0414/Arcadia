@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:bonfire_multiplayer/components/my_player/player_mixin.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
 mixin AttrPoints {
@@ -182,7 +183,7 @@ const kSkillCallbackTypeBlockSkill = 5;//封印对方一个技能
 const kSkillCallbackTypeTriggerSkill = 6;//必定触发一个技能
 const kSkillCallbackTypeDamage2Attack = 7;//将伤害转化攻击力
 
-class Skill {
+class Skill extends Equatable{
   final String name;
   final double triggerProbability;
   final String description;
@@ -200,6 +201,15 @@ class Skill {
     grade += grade < 5 ? 1 : 0;
     logCallback?.call(myPrint("$user: $name技能 升级到$grade"));
   }
+
+
+  @override
+  String toString() {
+    return 'Skill{name: $name, triggerProbability: $triggerProbability, description: $description, callback: $callback, grade: $grade, id: $id}';
+  }
+
+  @override
+  List<Object?> get props => [name, triggerProbability, description, callback, grade, id];
 }
 
 String myPrint(String log){

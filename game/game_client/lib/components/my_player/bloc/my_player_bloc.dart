@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bonfire/bonfire.dart';
+import 'package:bonfire_multiplayer/components/my_player/player_mixin.dart';
 import 'package:bonfire_multiplayer/data/game_event_manager.dart';
 import 'package:bonfire_multiplayer/util/extensions.dart';
 import 'package:equatable/equatable.dart';
@@ -17,8 +18,10 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
   final String id;
   final Vector2 initPosition;
   final MapModel map;
+
   MyPlayerBloc(this._eventManager, this.id, this.initPosition, this.map)
       : super(MyPlayerState(
+          characterState: CharacterState(),
           position: initPosition,
           direction: MoveDirectionEnum.down,
           lastDirection: MoveDirectionEnum.down,
@@ -26,6 +29,7 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
     on<UpdateMoveStateEvent>(_onUpdateMoveStateEvent);
     on<UpdatePlayerPositionEvent>(_onUpdatePlayerPositionEvent);
     on<DisposeEvent>(_onDisposeEvent);
+    on<UpdateMyCharacterStateEvent>(_onUpdatePlayerCharacterEvent);
 
     _eventManager.onSpecificPlayerState(
       id,
@@ -65,6 +69,16 @@ class MyPlayerBloc extends Bloc<MyPlayerEvent, MyPlayerState> {
         position: event.position,
         direction: event.direction,
         lastDirection: event.lastDirection,
+      ),
+    );
+  }
+
+  FutureOr<void> _onUpdatePlayerCharacterEvent(
+      UpdateMyCharacterStateEvent event,
+      Emitter<MyPlayerState> emit) {
+    emit(
+      state.copyWith(
+        characterState: event.state
       ),
     );
   }
