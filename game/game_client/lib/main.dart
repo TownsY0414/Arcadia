@@ -9,13 +9,40 @@ import 'package:bonfire_multiplayer/util/my_page_transition.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'chain/pages/account/account_controller.dart';
+import 'chain/routes/routes.dart';
+import 'chain/theme/theme_model.dart';
+import 'chain/translations/translations.dart';
+import 'chain/utils/log/lk_log_output.dart';
 
 // String address = '192.168.0.12';
 String address = '192.168.31.247';
 // String address = '10.0.2.2';
+var logger = Logger(
+    filter: kDebugMode ? DevelopmentFilter() : ProductionFilter(),
+    printer: PrettyPrinter(),
+    output: LKLogOutPut()
+);
 
-void main() {
+var loggerNST = Logger(
+    filter: kDebugMode ? DevelopmentFilter() : ProductionFilter(),
+    printer: PrettyPrinter(methodCount: 0),
+    output: LKLogOutPut()
+);
+
+void main() async{
+  await ScreenUtil.ensureScreenSize();
+  await Get.putAsync<SharedPreferences>(() async {
+    return await SharedPreferences.getInstance();
+  }, permanent: true);
   runApp(const MyApp());
 }
 
@@ -25,35 +52,61 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<WebsocketProvider>(
-          create: (context) => PoloWebsocket(address: address),
-        ),
-        Provider(
-          create: (context) => GameEventManager(websocket: context.read()),
-        ),
-        BlocProvider(create: (context) => HomeBloc(context.read())),
-        BlocProvider(create: (context) => BattleLogBloc())
-      ],
-      child: MaterialApp(
-        title: 'Arcadia',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-          useMaterial3: true,
-          pageTransitionsTheme: PageTransitionsTheme(
-            builders: {
-              TargetPlatform.android: MyPageTransition(),
-              TargetPlatform.iOS: MyPageTransition(),
-              TargetPlatform.macOS: MyPageTransition(),
+    return ScreenUtilInit(
+        designSize: const Size(375, 812),
+        builder: (_, __) => MultiProvider(
+          providers: [
+            Provider<WebsocketProvider>(
+              create: (context) => PoloWebsocket(address: address),
+            ),
+            Provider(
+              create: (context) => GameEventManager(websocket: context.read()),
+            ),
+            BlocProvider(create: (context) => HomeBloc(context.read())),
+            BlocProvider(create: (context) => BattleLogBloc())
+          ],
+          child: GetMaterialApp(
+            title: 'Arcadia',
+            initialBinding: BindingsBuilder(() async{
+              Get.put(ThemeController());
+              Get.put(AccountController());
+            }),
+            navigatorKey: Get.key,
+            navigatorObservers: [GetObserver()],
+            getPages: routes,
+            initialRoute: HomeRoute.name,
+            themeMode: ThemeMode.system,
+            builder: EasyLoading.init(builder: (ctx, child){
+              EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.ring;
+              return GestureDetector(
+                  onTap: () {
+                    FocusScopeNode focus = FocusScope.of(context);
+                    if (!focus.hasPrimaryFocus &&
+                        focus.focusedChild != null) {
+                      FocusManager.instance.primaryFocus!.unfocus();
+                    }
+                  },
+                  child: MediaQuery(
+                    //Setting font does not change with system font size
+                    data: MediaQuery.of(ctx).copyWith(textScaleFactor: 1.0),
+                    child: child!,
+                  ));
+            }),
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: const [
+              GlobalCupertinoLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate
+            ],
+            routes: {
+              ...HomeRoute.builder,
+              ...GameRoute.builder,
             },
+            translations: AppTranslations(),
+            supportedLocales: AppTranslations.supportedLocales,
+            locale: AppTranslations.locale ?? Get.deviceLocale,//const Locale('zh', 'CN'),
+            fallbackLocale: AppTranslations.fallbackLocale,
           ),
-        ),
-        routes: {
-          ...HomeRoute.builder,
-          ...GameRoute.builder,
-        },
-      ),
-    );
+        ));
   }
 }
