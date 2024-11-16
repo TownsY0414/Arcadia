@@ -1,0 +1,14 @@
+{ "columns":9,
+ "image":"graphics-tiles-waterflow.png",
+ "imageheight":293,
+ "imagewidth":319,
+ "margin":0,
+ "name":"graphics-tiles-waterflow",
+ "spacing":0,
+ "tilecount":81,
+ "tiledversion":"1.11.0",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

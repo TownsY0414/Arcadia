@@ -1,0 +1,14 @@
+{ "columns":14,
+ "image":"object-layer.png",
+ "imageheight":219,
+ "imagewidth":477,
+ "margin":0,
+ "name":"object-layer",
+ "spacing":0,
+ "tilecount":84,
+ "tiledversion":"1.11.0",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}
